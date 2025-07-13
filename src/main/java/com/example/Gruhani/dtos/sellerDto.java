@@ -5,59 +5,54 @@ import jakarta.persistence.PrePersist;
 
 import java.nio.ByteBuffer;
 import java.util.Base64;
+import java.util.List;
 import java.util.UUID;
 
 public class sellerDto {
-    @Id
-    Long id;
-    String name;
-    String address;
-    String ContactNumber;
 
-    public Long getId() {
-        return id;
-    }
+    private String name;
+    private String email;
+    private  String phone;
+    private String businessName;
+    private List<String> categories;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public void setname(String name) {
         this.name = name;
     }
 
-    public String getAddress() {
-        return address;
+    public String getEmail() {
+        return email;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
+    public void setEmail(String address) {
+        this.email=email;}
+    public String getPhone() {
+        return phone;
     }
 
-    public String getContactNumber() {
-        return ContactNumber;
+    public void setphone(String contactNumber) {
+        this.phone = contactNumber;
     }
 
-    public void setContactNumber(String contactNumber) {
-        ContactNumber = contactNumber;
+    public String getBusinessName() {
+        return businessName;
     }
 
-    @PrePersist
-    public void saveid()
-    {
-        if (this.id == null) {
-            this.id = Long.valueOf(generateCompactUUID());
-        }
+    public void setBusinessName(String businessName) {
+        this.businessName = businessName;
     }
-    private String generateCompactUUID() {
-        UUID uuid = UUID.randomUUID();
-        ByteBuffer buffer = ByteBuffer.allocate(16);
-        buffer.putLong(uuid.getMostSignificantBits());
-        buffer.putLong(uuid.getLeastSignificantBits());
-        return Base64.getUrlEncoder().withoutPadding().encodeToString(buffer.array());
+
+    public List<String> getCategories() {
+        return categories;
+    }
+
+    public void setCategories(List<String> categories) {
+        this.categories = categories;
     }
 }

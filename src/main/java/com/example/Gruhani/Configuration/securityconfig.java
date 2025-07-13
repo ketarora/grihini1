@@ -1,9 +1,19 @@
 package com.example.Gruhani.Configuration;
 
+import com.example.Gruhani.models.userdetailsServices;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -12,20 +22,31 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 
 @Configuration
+@EnableWebSecurity
 public class securityconfig {
+    @Autowired
+private userdetailsServices userDetailsService;
+
+
+
+
+    @Autowired
+    public void bindAuthManager(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(userDetailsService).passwordEncoder(new BCryptPasswordEncoder());
+    }
 
     @Bean
     public SecurityFilterChain secure(HttpSecurity hs) throws Exception {
         return hs.csrf(o->o.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .formLogin(o->o.loginPage("/logins").defaultSuccessUrl("/home",true).loginProcessingUrl("/login"))
+
                 .logout(logout -> logout
                     .logoutUrl("/logout")
                     .logoutSuccessUrl("/logins")
                     .invalidateHttpSession(true)
                     .deleteCookies("JSESSIONID"))
                 .authorizeHttpRequests(o->o
-                    .requestMatchers("/logins","/register","/home","/api/**").permitAll()
+                    .requestMatchers("/logins","/register","/home","/api/**","/register-seller").permitAll()
                     .anyRequest().authenticated())
                 .build();
     }
@@ -42,4 +63,16 @@ public class securityconfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
+@Bean
+public BCryptPasswordEncoder bCryptPasswordEncoder()
+{
+    return new BCryptPasswordEncoder();
+}
 }

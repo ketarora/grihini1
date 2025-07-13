@@ -1,6 +1,10 @@
 package com.example.Gruhani.models;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+
+import java.util.List;
 
 @Entity
 public class Seller {
@@ -10,6 +14,35 @@ public class Seller {
     String address;
     String contactNo;
     Boolean isApproved;
+    String BusinessName;
+    @JoinColumn(name="user_id")
+    @OneToOne
+    Users user;
+    String email;
+List<String> categories;
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public Users getUser() {
+        return user;
+    }
+
+    public void setUser(Users user) {
+        this.user = user;
+    }
+
+    public String getBusinessName() {
+        return BusinessName;
+    }
+
+    public void setBusinessName(String businessName) {
+        BusinessName = businessName;
+    }
 
     public String getId() {
         return id;
@@ -49,5 +82,13 @@ public class Seller {
 
     public void setContactNo(String contactNo) {
         this.contactNo = contactNo;
+    }
+
+    public List<String> getCategories() {
+        return categories;
+    }
+
+    public void setCategories(List<String> categories) {
+        this.categories = categories;
     }
 }

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,7 +10,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Eye, EyeOff, Mail, Lock, User, Phone, Building, Tag } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import { apiClient, isValidEmail } from "@/lib/api";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -48,35 +48,48 @@ const Login = () => {
 
   const handleCustomerLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!customerData.email || !customerData.password) {
       toast.error('Please fill in all fields');
       return;
     }
 
-    if (!isValidEmail(customerData.email)) {
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(customerData.email)) {
       toast.error('Please enter a valid email address');
       return;
     }
-    
+
     setIsLoading(true);
-    
+
     try {
-      const response = await apiClient.login({
-        username: customerData.email,
-        password: customerData.password
+      const response = await fetch('http://localhost:8085/logins', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: customerData.email,
+          password: customerData.password
+        }),
       });
 
-      if (response.success && response.user) {
-        login(response.user);
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        // Store user data in context
+        login(data.user);
         toast.success('Login successful! Welcome back!');
+
+        // Redirect to index.tsx
         navigate('/');
       } else {
-        toast.error(response.message || 'Login failed. Please check your credentials.');
+        toast.error(data.message || 'Login failed. Please check your credentials.');
       }
     } catch (error) {
       console.error('Login error:', error);
-      toast.error('Login failed. Please try again.');
+      toast.error('Login failed. Please check your connection and try again.');
     } finally {
       setIsLoading(false);
     }
@@ -92,23 +105,35 @@ const Login = () => {
       return;
     }
 
-    if (!isValidEmail(sellerData.email)) {
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(sellerData.email)) {
       toast.error('Please enter a valid email address');
       setIsLoading(false);
       return;
     }
 
     try {
-      const response = await apiClient.registerSeller({
-        name: sellerData.name,
-        email: sellerData.email,
-        phone: sellerData.phone,
-        businessName: sellerData.businessName,
-        categories: sellerData.categories,
-        address: '' // You might want to add address field to the form
+        console.log("Sending data", sellerData);
+
+      const response = await fetch('http://localhost:8085/register-seller', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: sellerData.name,
+          email: sellerData.email,
+          phone: sellerData.phone,
+          businessName: sellerData.businessName,
+          categories: sellerData.categories,
+          // You might want to add address field to the form
+        }),
       });
 
-      if (response.success && response.user) {
+      const data = await response.json();
+
+      if (response.ok && data.success) {
         // Simulate WhatsApp message sending
         setTimeout(() => {
           const whatsappMessage = `🎉 Welcome to गृहिणी Family!
@@ -144,12 +169,12 @@ Team गृहिणी`;
 
           // In a real app, this would send actual WhatsApp message
           console.log('WhatsApp Message:', whatsappMessage);
-          
+
           toast.success('Registration successful! WhatsApp message sent with next steps.');
-          
+
           // Auto-login the seller after registration
-          login(response.user);
-          
+          login(data.user);
+
           // Reset form
           setSellerData({
             name: '',
@@ -159,83 +184,19 @@ Team गृहिणी`;
             categories: [],
             whatsapp: ''
           });
-          
+
           // Redirect to seller dashboard
           navigate('/seller-dashboard');
         }, 1000);
       } else {
-        toast.error(response.message || 'Registration failed. Please try again.');
+        toast.error(data.message || 'Registration failed. Please try again.');
       }
     } catch (error) {
       console.error('Registration error:', error);
-      toast.error('Registration failed. Please try again.');
+      toast.error('Registration failed. Please check your connection and try again.');
     } finally {
       setIsLoading(false);
     }
-
-    /* Original simulation code - keeping for reference
-    setTimeout(() => {
-      const whatsappMessage = `🎉 Welcome to गृहिणी Family!
-
-Dear ${sellerData.name},
-
-Thank you for registering as a seller with us!
-
-📋 Your Details:
-• Name: ${sellerData.name}
-• Business: ${sellerData.businessName}
-• Categories: ${sellerData.categories.join(', ')}
-• Email: ${sellerData.email}
-• Phone: ${sellerData.phone}
-
-📸 Next Steps:
-1. Please send us photos of your products
-2. Include product names and prices
-3. Our team will review and approve your items
-4. Once approved, your products will go live!
-
-📱 Send your product photos to this WhatsApp number with:
-- Product name
-- Price
-- Brief description
-- High-quality images
-
-We'll review and get back to you within 24 hours!
-
-Welcome aboard! 🚀
-
-Team गृहिणी`;
-
-      // In a real app, this would send actual WhatsApp message
-      console.log('WhatsApp Message:', whatsappMessage);
-      
-      toast.success('Registration successful! WhatsApp message sent with next steps.');
-      
-      // Auto-login the seller after registration
-      const userData = {
-        id: Date.now().toString(),
-        name: sellerData.name,
-        email: sellerData.email,
-        type: 'seller' as const
-      };
-      
-      login(userData);
-      setIsLoading(false);
-      
-      // Reset form
-      setSellerData({
-        name: '',
-        phone: '',
-        email: '',
-        businessName: '',
-        categories: [],
-        whatsapp: ''
-      });
-      
-      // Redirect to seller dashboard
-      navigate('/seller-dashboard');
-    }, 2000);
-    */
   };
 
   const toggleCategory = (category: string) => {
@@ -268,7 +229,7 @@ Team गृहिणी`;
           <CardHeader className="text-center pb-2">
             <CardTitle className="text-2xl font-heading text-ethnic-primary">Welcome Back</CardTitle>
           </CardHeader>
-          
+
           <CardContent>
             <Tabs defaultValue="customer" className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-6">

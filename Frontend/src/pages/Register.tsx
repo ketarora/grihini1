@@ -24,53 +24,61 @@ const Register = () => {
     confirmPassword: ''
   });
 
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!formData.name || !formData.email || !formData.password) {
-      toast.error('Please fill in all required fields');
-      return;
-    }
+ const handleRegister = async (e: React.FormEvent) => {
+   e.preventDefault();
 
-    if (!isValidEmail(formData.email)) {
-      toast.error('Please enter a valid email address');
-      return;
-    }
+   if (!formData.name || !formData.email || !formData.password) {
+     toast.error("Please fill in all required fields");
+     return;
+   }
 
-    if (formData.phone && !isValidPhone(formData.phone)) {
-      toast.error('Please enter a valid phone number');
-      return;
-    }
+   if (!isValidEmail(formData.email)) {
+     toast.error("Please enter a valid email address");
+     return;
+   }
 
-    if (formData.password !== formData.confirmPassword) {
-      toast.error('Passwords do not match');
-      return;
-    }
+   if (formData.phone && !isValidPhone(formData.phone)) {
+     toast.error("Please enter a valid phone number");
+     return;
+   }
 
-    if (formData.password.length < 6) {
-      toast.error('Password must be at least 6 characters');
-      return;
-    }
+   if (formData.password !== formData.confirmPassword) {
+     toast.error("Passwords do not match");
+     return;
+   }
 
-    setIsLoading(true);
-    
-    try {
-      const response = await apiClient.register(formData);
+   if (formData.password.length < 6) {
+     toast.error("Password must be at least 6 characters");
+     return;
+   }
 
-      if (response.success && response.user) {
-        login(response.user);
-        toast.success('Account created successfully! Welcome to गृहिणी!');
-        navigate('/');
-      } else {
-        toast.error(response.message || 'Registration failed. Please try again.');
-      }
-    } catch (error) {
-      console.error('Registration error:', error);
-      toast.error('Registration failed. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+   setIsLoading(true);
+
+   try {
+     const response = await fetch("http://localhost:8085/register", {
+       method: "POST",
+       headers: {
+         "Content-Type": "application/json",
+       },
+       body: JSON.stringify(formData),
+     });
+
+     const result = await response.json();
+
+     if (response.ok && result.success) {
+       toast.success("Account created successfully! You can now log in.");
+       navigate("/login");
+     } else {
+       toast.error(result.message || "Registration failed. Please try again.");
+     }
+   } catch (error) {
+     console.error("Registration error:", error);
+     toast.error("Registration failed. Please try again.");
+   } finally {
+     setIsLoading(false);
+   }
+ };
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 flex items-center justify-center p-4">

@@ -8,7 +8,7 @@ import jakarta.persistence.ManyToOne;
 @Entity
 public class product {
     @Id
-    Long id;
+    String id;
     String name;
     String description;
     Float price;
