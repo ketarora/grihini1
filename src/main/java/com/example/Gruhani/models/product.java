@@ -6,12 +6,19 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
 @Entity
+
 public class product {
     @Id
     String id;
     String name;
     String description;
-    Float price;
+    Boolean verified;
+      String price;
+       Float Rating;
+    String badge;
+    String deliverytime;
+    String image;
+    String kitchenvideourl;
     @ManyToOne
     @JoinColumn(name="seller_id")
     Seller seller;

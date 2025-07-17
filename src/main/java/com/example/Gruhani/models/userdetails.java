@@ -29,6 +29,7 @@ public class userdetails implements UserDetails {
         List<GrantedAuthority> authorities = s.stream()
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
+        System.out.print("userdetails only"+authorities);
         return authorities;
     }
 
@@ -39,6 +40,7 @@ public class userdetails implements UserDetails {
 
     @Override
     public String getUsername() {
+        System.out.print("userdetails only"+username);
         return username;
     }
 }

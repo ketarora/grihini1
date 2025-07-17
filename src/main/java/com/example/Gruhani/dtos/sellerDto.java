@@ -30,13 +30,14 @@ public class sellerDto {
         return email;
     }
 
-    public void setEmail(String address) {
+    public void setEmail(String email) {
         this.email=email;}
     public String getPhone() {
         return phone;
     }
 
-    public void setphone(String contactNumber) {
+
+    public void setPhone(String contactNumber) {
         this.phone = contactNumber;
     }
 

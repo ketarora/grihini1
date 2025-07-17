@@ -4,6 +4,7 @@ import com.example.Gruhani.Repositories.SellerRepo;
 import com.example.Gruhani.Repositories.UserRepo;
 import com.example.Gruhani.dtos.LoginRequest;
 import com.example.Gruhani.dtos.sellerDto;
+import com.example.Gruhani.dtos.sellerLogindto;
 import com.example.Gruhani.models.Seller;
 import com.example.Gruhani.models.Users;
 import org.apache.catalina.User;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
@@ -18,7 +20,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.http.ResponseEntity;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 public class AuthController {
@@ -55,6 +60,7 @@ public class AuthController {
         
         return ResponseEntity.ok(response);
     }
+
 @PostMapping("/register-seller")
 public ResponseEntity<?> sellerRegister(@RequestBody sellerDto sd)
 {
@@ -62,7 +68,7 @@ public ResponseEntity<?> sellerRegister(@RequestBody sellerDto sd)
     System.out.print("seller-mail"+sd.getEmail());
 
     Users us=ur.findByemail(sd.getEmail());
-    System.out.print("user-seller"+us);
+    System.out.print("user-seller"+us.getEmail());
 
     if(us==null)
     {
@@ -73,11 +79,17 @@ public ResponseEntity<?> sellerRegister(@RequestBody sellerDto sd)
     seller.setName(sd.getName());
     seller.setBusinessName(sd.getBusinessName());
     seller.setApproved(false);
+    Set<String> s=new HashSet<>();
+    s.add("ROLE_USER");
+    s.add("ROLE_SELLER");
+    us.setRole(s);
     seller.setUser(us);
     seller.setId(java.util.UUID.randomUUID().toString());
     seller.setCategories(sd.getCategories());
+    seller.setEmail(sd.getEmail());
+    Users usu=seller.getUser();
     srepo.save(seller);
-    System.out.print("final seller"+seller);
+    System.out.print("final seller"+seller.getEmail());
     return ResponseEntity.ok(Map.of(
         "success", true,
         "message", "Login successful as a seller",
@@ -94,13 +106,34 @@ public ResponseEntity<?> sellerRegister(@RequestBody sellerDto sd)
     public ResponseEntity<?> loginPage(@RequestBody LoginRequest lr) {
         Authentication authentication;
         try {
-            System.out.print("inside login");
+            System.out.print("inside loginaaaaaaa");
 
             Authentication auth = new UsernamePasswordAuthenticationToken(lr.getUsername(), lr.getPassword());
             System.out.print("auth details: " + auth);
 
              authentication = authenticationManager.authenticate(auth);
-            System.out.print("authentication: " + authentication); // Will print only if success
+
+            Set<String> userRoles = authentication.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .collect(Collectors.toSet());
+
+            // Size-based check
+            System.out.print("final rollaa"+userRoles);
+            if (lr.getUserType().equals("seller") && userRoles.size() != 2) {
+               return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                        "success", false,
+                        "message", "Invalid email or password"
+                ));
+            }
+
+            if (lr.getUserType().equals("customer") && userRoles.size() != 1) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                        "success", false,
+                        "message", "Invalid email or password"
+                ));
+            }
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            System.out.print("authentication: aayayai yai " + authentication); // Will print only if success
         } catch (Exception e) {
             System.out.println("❌ Exception during authentication: " + e.getMessage());
             e.printStackTrace(); // Print full stack trace
@@ -109,6 +142,7 @@ public ResponseEntity<?> sellerRegister(@RequestBody sellerDto sd)
         Users user=ur.findByemail(lr.getUsername());
         if(user==null )
         {
+            System.out.print("iske anderrrr");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
                     "success", false,
                     "message", "Invalid email or password"

@@ -27,7 +27,11 @@ public class securityconfig {
     @Autowired
 private userdetailsServices userDetailsService;
 
-
+@Bean
+public UserDetailsService userDetailsService()
+{
+    return new userdetailsServices();
+}
 
 
     @Autowired
@@ -46,8 +50,9 @@ private userdetailsServices userDetailsService;
                     .invalidateHttpSession(true)
                     .deleteCookies("JSESSIONID"))
                 .authorizeHttpRequests(o->o
-                    .requestMatchers("/logins","/register","/home","/api/**","/register-seller").permitAll()
+                    .requestMatchers("/logins","/register","/home","/api/**","/register-seller","/seller-login").permitAll()
                     .anyRequest().authenticated())
+
                 .build();
     }
 

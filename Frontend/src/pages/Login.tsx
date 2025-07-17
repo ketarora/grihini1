@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,10 +5,12 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Eye, EyeOff, Mail, Lock, User, Phone, Building, Tag } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, Phone, Building, Tag, UserCheck } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -20,7 +21,8 @@ const Login = () => {
   // Customer Login State
   const [customerData, setCustomerData] = useState({
     email: '',
-    password: ''
+    password: '',
+    userType: 'customer' // New field for user type
   });
 
   // Seller Registration State
@@ -49,7 +51,7 @@ const Login = () => {
   const handleCustomerLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!customerData.email || !customerData.password) {
+    if (!customerData.email || !customerData.password || !customerData.userType) {
       toast.error('Please fill in all fields');
       return;
     }
@@ -64,36 +66,46 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:8085/logins', {
+      // Single endpoint for all user types - userType is sent to backend
+      const response = await fetch(`http://localhost:8085/logins`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+    credentials: 'include',
         body: JSON.stringify({
           email: customerData.email,
-          password: customerData.password
+          password: customerData.password,
+          userType: customerData.userType
         }),
       });
 
       const data = await response.json();
 
-      if (response.ok && data.success) {
-        // Store user data in context
-        login(data.user);
-        toast.success('Login successful! Welcome back!');
+      if (response.ok) {
+        // Handle successful login
+        login(data.user, data.token);
+        toast.success('Login successful!');
 
-        // Redirect to index.tsx
-        navigate('/');
+        // Navigate based on user type
+        if (customerData.userType === 'seller') {
+          navigate('/seller-dashboard');
+        } else {
+          navigate('/customer-dashboard');
+        }
       } else {
-        toast.error(data.message || 'Login failed. Please check your credentials.');
+        toast.error(data.message || 'Login failed');
       }
     } catch (error) {
       console.error('Login error:', error);
-      toast.error('Login failed. Please check your connection and try again.');
+      toast.error('An error occurred during login');
     } finally {
       setIsLoading(false);
     }
   };
+
+  // Rest of your component code...
+
 
   const handleSellerRegistration = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -173,7 +185,10 @@ Team गृहिणी`;
           toast.success('Registration successful! WhatsApp message sent with next steps.');
 
           // Auto-login the seller after registration
-          login(data.user);
+          login({
+            ...data.user,
+            userType: 'seller'
+          });
 
           // Reset form
           setSellerData({
@@ -186,7 +201,7 @@ Team गृहिणी`;
           });
 
           // Redirect to seller dashboard
-          navigate('/seller-dashboard');
+          navigate('/login');
         }, 1000);
       } else {
         toast.error(data.message || 'Registration failed. Please try again.');
@@ -233,11 +248,11 @@ Team गृहिणी`;
           <CardContent>
             <Tabs defaultValue="customer" className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-6">
-                <TabsTrigger value="customer" className="text-sm">Customer Login</TabsTrigger>
+                <TabsTrigger value="customer" className="text-sm">Login</TabsTrigger>
                 <TabsTrigger value="seller" className="text-sm">Become Seller</TabsTrigger>
               </TabsList>
 
-              {/* Customer Login */}
+              {/* Customer/Seller Login */}
               <TabsContent value="customer">
                 <form onSubmit={handleCustomerLogin} className="space-y-4">
                   {/* Google Sign In */}
@@ -261,6 +276,36 @@ Team गृहिणी`;
                   </div>
 
                   <div className="space-y-4">
+                    {/* User Type Selection */}
+                    <div className="space-y-2">
+                      <Label htmlFor="user-type">Login As</Label>
+                      <Select
+                        value={customerData.userType}
+                        onValueChange={(value) => setCustomerData(prev => ({ ...prev, userType: value }))}
+                      >
+                        <SelectTrigger className="w-full">
+                          <div className="flex items-center">
+                            <UserCheck className="mr-2 h-4 w-4 text-muted-foreground" />
+                            <SelectValue placeholder="Select user type" />
+                          </div>
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="customer">
+                            <div className="flex items-center">
+                              <User className="mr-2 h-4 w-4" />
+                              <span>Customer</span>
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="seller">
+                            <div className="flex items-center">
+                              <Building className="mr-2 h-4 w-4" />
+                              <span>Seller</span>
+                            </div>
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
                     <div className="space-y-2">
                       <Label htmlFor="email">Email Address</Label>
                       <div className="relative">
@@ -307,7 +352,7 @@ Team गृहिणी`;
                     </div>
 
                     <Button type="submit" className="w-full" disabled={isLoading}>
-                      {isLoading ? 'Signing in...' : 'Sign In'}
+                      {isLoading ? 'Signing in...' : `Sign In as ${customerData.userType === 'seller' ? 'Seller' : 'Customer'}`}
                     </Button>
                   </div>
 
