@@ -7,12 +7,15 @@ import com.example.Gruhani.dtos.sellerDto;
 import com.example.Gruhani.dtos.sellerLogindto;
 import com.example.Gruhani.models.Seller;
 import com.example.Gruhani.models.Users;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
@@ -103,14 +106,10 @@ public ResponseEntity<?> sellerRegister(@RequestBody sellerDto sd)
 
 }
     @PostMapping("/logins")
-    public ResponseEntity<?> loginPage(@RequestBody LoginRequest lr) {
+    public ResponseEntity<?> loginPage(@RequestBody LoginRequest lr, HttpServletRequest req) {
         Authentication authentication;
         try {
-            System.out.print("inside loginaaaaaaa");
-
             Authentication auth = new UsernamePasswordAuthenticationToken(lr.getUsername(), lr.getPassword());
-            System.out.print("auth details: " + auth);
-
              authentication = authenticationManager.authenticate(auth);
 
             Set<String> userRoles = authentication.getAuthorities().stream()
@@ -126,16 +125,19 @@ public ResponseEntity<?> sellerRegister(@RequestBody sellerDto sd)
                 ));
             }
 
-            if (lr.getUserType().equals("customer") && userRoles.size() != 1) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
-                        "success", false,
-                        "message", "Invalid email or password"
-                ));
-            }
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+         //   req.getSession(true);
+            SecurityContext context = SecurityContextHolder.getContext();
+            context.setAuthentication(authentication);
+            System.out.print(req.getRequestedSessionId());
+            SecurityContextHolder.setContext(context);
+            req.getSession(true).setAttribute(
+                    HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+                    context
+            );
             System.out.print("authentication: aayayai yai " + authentication); // Will print only if success
         } catch (Exception e) {
-            System.out.println("❌ Exception during authentication: " + e.getMessage());
+            System.out.println(" Exception during authentication: " + e.getMessage());
             e.printStackTrace(); // Print full stack trace
         }
 
