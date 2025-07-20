@@ -26,8 +26,27 @@ import SellerSupport from "./pages/SellerSupport";
 import SellerProfile from "./pages/SellerProfile";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import AdminDashboard from './pages/AdminDashboard';
+import './App.css';
+
+
+
+
+
+
+
+
+
 
 const queryClient = new QueryClient();
+
+function App() {
+  return (
+    <div className="App">
+      <AdminDashboard />
+    </div>
+  );
+}
 
 const App = () => {
   const [showIntro, setShowIntro] = useState(true);

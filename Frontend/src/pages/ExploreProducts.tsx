@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -16,38 +16,74 @@ const ExploreProducts = () => {
   const [viewMode, setViewMode] = useState("grid");
   const [searchTerm, setSearchTerm] = useState("");
   const [expandedCategories, setExpandedCategories] = useState<string[]>(["Homemade Food"]);
+  const [products, setProducts] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const HEADER_HEIGHT_OFFSET = "72px";
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch("http://localhost:8085/get-all-products");
+        const data = await response.json();
+        // Assume data is an array of products
+        // Only keep approved products
+        const approved = (data.products || data).filter((p: any) => p.status === "approved");
+        // Map backend fields to frontend structure
+        const mapped = approved.map((p: any) => ({
+          id: p.id || p._id || p.productId,
+          name: p.name,
+          seller: p.sellerName || (p.seller && (p.seller.name || p.seller.businessName)) || p.seller || "",
+          price: p.price ? `₹${p.price}` : "",
+          originalPrice: p.originalPrice ? `₹${p.originalPrice}` : undefined,
+          discount: p.discount,
+          rating: p.rating || 0,
+          deliveryTime: p.deliveryTime || "",
+          image: p.image || "/placeholder.svg",
+          badge: p.badge || "",
+          verified: p.verified || false,
+          category: p.category || "",
+          subcategory: p.subcategory || "",
+          description: p.description || "",
+          kitchenVideoUrl: p.kitchenVideoUrl || undefined,
+          status: p.status,
+        }));
+        setProducts(mapped);
+      } catch (e) {
+        setProducts([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
 
   const topSellerIds = useMemo(() => getTopSellers(realSellers), []);
 
   const filteredProducts = useMemo(() => {
-    let filtered = realProducts;
-
+    let filtered = products;
     // Filter by category
     if (selectedCategory !== "All") {
       filtered = filtered.filter(product => product.category === selectedCategory);
     }
-
     // Filter by subcategory
     if (selectedSubcategory) {
       filtered = filtered.filter(product => product.subcategory === selectedSubcategory);
     }
-
     // Filter by search term
     if (searchTerm) {
-      filtered = filtered.filter(product => 
+      filtered = filtered.filter(product =>
         product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.seller.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.description.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
-
     return filtered;
-  }, [selectedCategory, selectedSubcategory, searchTerm]);
+  }, [products, selectedCategory, selectedSubcategory, searchTerm]);
 
   const toggleCategoryExpansion = (categoryName: string) => {
-    setExpandedCategories(prev => 
-      prev.includes(categoryName) 
+    setExpandedCategories(prev =>
+      prev.includes(categoryName)
         ? prev.filter(name => name !== categoryName)
         : [...prev, categoryName]
     );
@@ -65,7 +101,7 @@ const ExploreProducts = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Header />
-      
+
       <div className="container mx-auto px-4 py-6 flex-grow flex">
         {/* Left Panel: Categories with Subcategories */}
         <aside className="hidden md:block w-64 lg:w-72 pr-6">
@@ -78,7 +114,7 @@ const ExploreProducts = () => {
               {categories.map((category) => (
                 <div key={category.name}>
                   {category.subcategories.length > 0 ? (
-                    <Collapsible 
+                    <Collapsible
                       open={expandedCategories.includes(category.name)}
                       onOpenChange={() => toggleCategoryExpansion(category.name)}
                     >
@@ -94,8 +130,8 @@ const ExploreProducts = () => {
                             <span className="text-lg">{category.icon}</span>
                             {category.name}
                           </div>
-                          {expandedCategories.includes(category.name) ? 
-                            <ChevronDown className="h-4 w-4" /> : 
+                          {expandedCategories.includes(category.name) ?
+                            <ChevronDown className="h-4 w-4" /> :
                             <ChevronRight className="h-4 w-4" />
                           }
                         </Button>
@@ -233,12 +269,16 @@ const ExploreProducts = () => {
           </div>
 
           {/* Products Grid/List */}
-          {filteredProducts.length === 0 ? (
+          {isLoading ? (
+            <div className="text-center py-10">
+              <h3 className="text-2xl font-semibold text-muted-foreground mb-2">Loading products...</h3>
+            </div>
+          ) : filteredProducts.length === 0 ? (
             <div className="text-center py-10">
               <h3 className="text-2xl font-semibold text-muted-foreground mb-2">No products found</h3>
               <p className="text-muted-foreground">Try adjusting your filters or search terms.</p>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="mt-4"
                 onClick={() => {
                   setSelectedCategory("All");
@@ -258,7 +298,7 @@ const ExploreProducts = () => {
               {filteredProducts.map((product) => {
                 const seller = realSellers.find(s => s.name === product.seller);
                 const isTopSeller = seller && topSellerIds.includes(seller.id);
-                
+
                 return (
                   <Card key={product.id} className="group hover:shadow-warm transition-all duration-300 flex flex-col">
                     <CardContent className="p-0 flex flex-col flex-grow">
@@ -297,9 +337,7 @@ const ExploreProducts = () => {
                         <div className="flex items-center text-sm text-muted-foreground mb-2">
                           <Link to={`/seller/${product.seller.toLowerCase().replace(/\s+/g, '-')}`} className="hover:text-primary transition-colors flex items-center gap-1">
                             by {product.seller}
-                            {isTopSeller && (
-                              <Star className="h-4 w-4 fill-amber-400 text-amber-500" title="Top Seller" />
-                            )}
+                            {(() => { const seller = realSellers.find(s => s.name === product.seller); const isTopSeller = seller && topSellerIds.includes(seller.id); return isTopSeller ? (<Star className="h-4 w-4 fill-amber-400 text-amber-500" title="Top Seller" />) : null; })()}
                           </Link>
                         </div>
                         <div className="flex items-center gap-1 mb-2">
@@ -356,7 +394,7 @@ const ExploreProducts = () => {
           </div>
         </main>
       </div>
-      
+
       <Footer />
     </div>
   );

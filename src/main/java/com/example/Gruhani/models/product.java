@@ -18,6 +18,20 @@ public class product {
     String deliverytime;
     String image;
     String kitchenvideourl;
+    String status;
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public void setRating(float rating) {
+        Rating = rating;
+    }
+
     @ManyToOne
     @JoinColumn(name="seller_id")
     Seller seller;

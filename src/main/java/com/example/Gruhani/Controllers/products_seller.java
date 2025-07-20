@@ -10,11 +10,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 @RestController
 public class products_seller {
@@ -48,6 +50,7 @@ public ResponseEntity<?> method (@RequestBody productdto pdto) {
             }
             System.out.print("product"+pr);
             pr.setId(java.util.UUID.randomUUID().toString());
+            pr.setStatus(pdto.getStatus());
             prepo.save(pr);
 
             response.put("success", true);
@@ -64,4 +67,5 @@ public ResponseEntity<?> method (@RequestBody productdto pdto) {
 
 
     }
+
 }
