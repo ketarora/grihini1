@@ -28,7 +28,7 @@ const ExploreProducts = () => {
         const data = await response.json();
         // Assume data is an array of products
         // Only keep approved products
-        const approved = (data.products || data).filter((p: any) => p.status === "approved");
+        const approved = data.filter((p: any) => p.status === "approved");
         // Map backend fields to frontend structure
         const mapped = approved.map((p: any) => ({
           id: p.id || p._id || p.productId,

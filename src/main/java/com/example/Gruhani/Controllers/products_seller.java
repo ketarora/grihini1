@@ -3,21 +3,23 @@ package com.example.Gruhani.Controllers;
 import com.example.Gruhani.Repositories.ProductRepo;
 import com.example.Gruhani.Repositories.SellerRepo;
 import com.example.Gruhani.dtos.productdto;
+import com.example.Gruhani.models.Idclass;
+import com.example.Gruhani.models.SelectedOrderadmin;
 import com.example.Gruhani.models.Seller;
 import com.example.Gruhani.models.product;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
 @RestController
 public class products_seller {
     @Autowired
@@ -67,5 +69,51 @@ public ResponseEntity<?> method (@RequestBody productdto pdto) {
 
 
     }
+
+    @GetMapping("/get-all-products")
+    public ResponseEntity<?> method()
+    {
+       List<product> l=prepo.findAllBystatus("approved");
+        Map<String, Object> response = new HashMap<>();
+        //here in response the product dto attributes will be mapped and sent to frontend
+       return ResponseEntity.ok().body(l);
+
+    }
+    @CrossOrigin(origins = "http://localhost:8086", allowCredentials = "true")
+    @GetMapping("/view-pending")
+    public ResponseEntity<?> methods()
+    {
+
+        List<product> l=prepo.findAllBystatus("pending");
+        System.out.print("list0"+l);
+      /*  List<productdto>s= l.stream()
+                .map(product -> {
+                    productdto dto = new productdto();
+                    BeanUtils.copyProperties(product, dto);
+                    return dto;
+                })
+                .collect(Collectors.toList());*/
+
+        return ResponseEntity.ok().body(l);
+    }
+    @PostMapping("/accept-item")
+    public ResponseEntity<String> meth(@RequestBody SelectedOrderadmin sb)
+    {
+         List<Idclass>selectedOrders=sb.getSelectedOrders();
+
+         System.out.print("lullu"+selectedOrders);
+         for(Idclass i:selectedOrders)
+         {
+             String id=i.getId();
+             product p=prepo.findByid(id);
+             p.setStatus("approved");
+             System.out.print("product"+p);
+
+             prepo.save(p);
+         }
+         return ResponseEntity.ok().body("ok");
+    }
+
+
 
 }

@@ -40,7 +40,7 @@ import './App.css';
 
 const queryClient = new QueryClient();
 
-function App() {
+function Apps() {
   return (
     <div className="App">
       <AdminDashboard />
@@ -86,6 +86,7 @@ const App = () => {
               <Route path="/top-sellers" element={<TopSellersPage />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/gruhani/admin" element={<AdminDashboard />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

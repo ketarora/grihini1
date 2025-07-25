@@ -1,5 +1,6 @@
 package com.example.Gruhani.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -13,12 +14,49 @@ public class product {
     String description;
     Boolean verified;
     float  price;
-    float Rating;
+    float rating;
     String badge;
     String deliverytime;
     String image;
-    String kitchenvideourl;
+
     String status;
+    String category;
+    String subcategory;
+    int stock;
+    String discount;
+
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public String getSubcategory() {
+        return subcategory;
+    }
+
+    public void setSubcategory(String subcategory) {
+        this.subcategory = subcategory;
+    }
+
+    public int getStock() {
+        return stock;
+    }
+
+    public void setStock(int stock) {
+        this.stock = stock;
+    }
+
+    public String getDiscount() {
+        return discount;
+    }
+
+    public void setDiscount(String discount) {
+        this.discount = discount;
+    }
 
     public String getStatus() {
         return status;
@@ -29,10 +67,11 @@ public class product {
     }
 
     public void setRating(float rating) {
-        Rating = rating;
+        this.rating = rating;
     }
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name="seller_id")
     Seller seller;
 
@@ -77,11 +116,11 @@ public class product {
     }
 
     public Float getRating() {
-        return Rating;
+        return rating;
     }
 
     public void setRating(Float rating) {
-        Rating = rating;
+        this.rating = rating;
     }
 
     public String getBadge() {
@@ -108,13 +147,7 @@ public class product {
         this.image = image;
     }
 
-    public String getKitchenvideourl() {
-        return kitchenvideourl;
-    }
 
-    public void setKitchenvideourl(String kitchenvideourl) {
-        this.kitchenvideourl = kitchenvideourl;
-    }
 
     public Seller getSeller() {
         return seller;
