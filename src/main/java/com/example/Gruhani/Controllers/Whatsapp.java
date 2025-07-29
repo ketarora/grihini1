@@ -3,10 +3,9 @@ package com.example.Gruhani.Controllers;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 public class Whatsapp {
@@ -14,6 +13,15 @@ public class Whatsapp {
 
 
        // same as the one you gave in dashboard
+    @PostMapping("/got-message")
+    public ResponseEntity<String>message(@RequestBody Map<String, Object> payload)
+    {
+        System.out.println("mesaage form user0"+payload);
+        return ResponseEntity.ok("done");
+      }
+
+
+
 
         @GetMapping("/got-message")
         public ResponseEntity<String> verifyWebhook(
