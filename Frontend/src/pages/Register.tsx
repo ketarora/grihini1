@@ -55,7 +55,7 @@ const Register = () => {
    setIsLoading(true);
 
    try {
-     const response = await fetch("http://localhost:8085/register", {
+     const response = await fetch("https://grihini-wtbw.onrender.com/register", {
        method: "POST",
        headers: {
          "Content-Type": "application/json",

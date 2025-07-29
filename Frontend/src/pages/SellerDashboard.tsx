@@ -79,7 +79,7 @@ const SellerDashboard = () => {
     try {
       setIsFetchingProducts(true);
 
-      const response = await fetch('http://localhost:8085/get-seller-products', {
+      const response = await fetch('https://grihini-wtbw.onrender.com/get-seller-products', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -167,7 +167,7 @@ const SellerDashboard = () => {
       console.log("Submitting product:", productData);
 
       // Make API call to backend
-      const response = await fetch('http://localhost:8085/add-product', {
+      const response = await fetch('https://grihini-wtbw.onrender.com/add-product', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -235,7 +235,7 @@ const SellerDashboard = () => {
   const handleDeleteProduct = async (id: string) => {
     try {
       // Make API call to backend to delete from database
-      const response = await fetch(`http://localhost:8085/delete-product/${id}`, {
+      const response = await fetch(`https://grihini-wtbw.onrender.com/delete-product/${id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

@@ -67,7 +67,7 @@ const Login = () => {
 
     try {
       // Single endpoint for all user types - userType is sent to backend
-      const response = await fetch(`http://localhost:8085/logins`, {
+      const response = await fetch(`https://grihini-wtbw.onrender.com/logins`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -128,7 +128,7 @@ const Login = () => {
     try {
         console.log("Sending data", sellerData);
 
-      const response = await fetch('http://localhost:8085/register-seller', {
+      const response = await fetch('https://grihini-wtbw.onrender.com/register-seller', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

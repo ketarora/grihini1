@@ -27,7 +27,7 @@ const AdminDashboard: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
 
-  const API_BASE_URL = 'http://localhost:8085';
+  const API_BASE_URL = 'https://grihini-wtbw.onrender.com';
 
   useEffect(() => {
     fetchPendingOrders();
