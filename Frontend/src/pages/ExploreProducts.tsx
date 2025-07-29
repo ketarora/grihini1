@@ -24,7 +24,7 @@ const ExploreProducts = () => {
     const fetchProducts = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch("http://localhost:8085/get-all-products");
+        const response = await fetch("https://grihini-wtbw.onrender.com/get-all-products");
         const data = await response.json();
         // Assume data is an array of products
         // Only keep approved products

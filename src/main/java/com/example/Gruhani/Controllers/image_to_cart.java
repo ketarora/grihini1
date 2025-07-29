@@ -34,7 +34,7 @@ public class image_to_cart {
         AnnotateImageResponse res = response.getResponses(0);
 
         String extractedText = res.getFullTextAnnotation().getText();
-        System.out.println(extractedText);// 👈 OCR result here!
+        System.out.println(extractedText);
 
 
 
