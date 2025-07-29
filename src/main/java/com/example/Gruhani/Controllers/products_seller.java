@@ -9,6 +9,7 @@ import com.example.Gruhani.models.Seller;
 import com.example.Gruhani.models.product;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -138,7 +139,34 @@ public ResponseEntity<?> method (@RequestBody productdto pdto) {
         return ResponseEntity.ok().body("ok");
     }
 
+    String VERIFY_TOKEN = "gruhani-token";
+
+
+    // same as the one you gave in dashboard
+    @GetMapping("/got-message")
+    public ResponseEntity<String> verifyWebhook(
+            @RequestParam("hub.mode") String mode,
+            @RequestParam("hub.verify_token") String token,
+            @RequestParam("hub.challenge") String challenge) {
+        System.out.print("reached inside");
+
+        if ("subscribe".equals(mode) && VERIFY_TOKEN.equals(token)) {
+            return ResponseEntity.ok(challenge);  // ✅ Verification success
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Verification failed kutttsss");
+        }
+    }
+    @PostMapping("/got-message")
+    public ResponseEntity<String>message(@RequestBody Map<String, Object> payload)
+    {
+        System.out.println("mesaage form user0"+payload);
+        return ResponseEntity.ok("done");
+    }
+    }
 
 
 
-}
+
+
+
+
