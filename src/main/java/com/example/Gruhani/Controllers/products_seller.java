@@ -37,6 +37,8 @@ public ResponseEntity<?> method (@RequestBody productdto pdto) {
             pr.setImage(pdto.getImage());
             pr.setPrice(pdto.getPrice());
             pr.setName(pdto.getName());
+            pr.setRating(pdto.getRating());
+            pr.setStatus("pending");
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             Object principal = authentication.getPrincipal();
             System.out.println("pehle instanve ke");
@@ -52,7 +54,12 @@ public ResponseEntity<?> method (@RequestBody productdto pdto) {
             }
             System.out.print("product"+pr);
             pr.setId(java.util.UUID.randomUUID().toString());
-            pr.setStatus(pdto.getStatus());
+            pr.setVerified(pdto.isVerified());
+            pr.setCategory(pdto.getCategory());
+            pr.setSubcategory(pdto.getSubcategory());
+
+
+            pr.setStatus("pending");
             prepo.save(pr);
 
             response.put("success", true);
@@ -113,6 +120,24 @@ public ResponseEntity<?> method (@RequestBody productdto pdto) {
          }
          return ResponseEntity.ok().body("ok");
     }
+    @PostMapping("/reject-item")
+    public ResponseEntity<String> methods(@RequestBody SelectedOrderadmin sb)
+    {
+        List<Idclass>selectedOrders=sb.getSelectedOrders();
+
+        System.out.print("lullu"+selectedOrders);
+        for(Idclass i:selectedOrders)
+        {
+            String id=i.getId();
+            product p=prepo.findByid(id);
+            p.setStatus("rejected");
+            System.out.print("product"+p);
+
+            prepo.save(p);
+        }
+        return ResponseEntity.ok().body("ok");
+    }
+
 
 
 

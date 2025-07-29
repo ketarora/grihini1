@@ -13,7 +13,7 @@ public class product {
     String name;
     String description;
     Boolean verified;
-    float  price;
+    String price;
     float rating;
     String badge;
     String deliverytime;
@@ -107,11 +107,11 @@ public class product {
         this.verified = verified;
     }
 
-    public float getPrice() {
+    public String getPrice() {
         return price;
     }
 
-    public void setPrice(float price) {
+    public void setPrice(String price) {
         this.price = price;
     }
 

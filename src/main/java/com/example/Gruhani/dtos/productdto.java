@@ -10,7 +10,7 @@ import java.util.List;
 public class productdto {
 
    String  name;
-   float  price;
+   String price;
     String category;
      String subcategory;
   String  description;
@@ -34,11 +34,11 @@ public class productdto {
         this.name = name;
     }
 
-    public float getPrice() {
+    public String getPrice() {
         return price;
     }
 
-    public void setPrice(float price) {
+    public void setPrice(String price) {
         this.price = price;
     }
 

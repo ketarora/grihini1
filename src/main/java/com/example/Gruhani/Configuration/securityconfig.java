@@ -50,7 +50,7 @@ public UserDetailsService userDetailsService()
                     .invalidateHttpSession(true)
                     .deleteCookies("JSESSIONID"))
                 .authorizeHttpRequests(o->o
-                    .requestMatchers("/logins","/register","/home","/api/**","/register-seller","/seller-login","/view-pending","/get-all-products").permitAll()
+                    .requestMatchers("/logins","/register","/home","/api/**","/register-seller","/seller-login","/view-pending","/get-all-products","/add-product","/got-message").permitAll()
                     .anyRequest().authenticated())
 
                 .build();
@@ -59,7 +59,7 @@ public UserDetailsService userDetailsService()
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:*", "http://127.0.0.1:*"));
+        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
