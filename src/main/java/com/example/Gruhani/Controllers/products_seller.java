@@ -157,7 +157,7 @@ public ResponseEntity<?> method (@RequestBody productdto pdto) {
         }
     }
     @PostMapping("/got-message")
-    public ResponseEntity<String>message(@RequestBody Map<String, Object> payload)
+    public ResponseEntity<String>vanshi(@RequestBody Map<String, Object> payload)
     {
         System.out.println("mesaage form user0"+payload);
         return ResponseEntity.ok("done");
