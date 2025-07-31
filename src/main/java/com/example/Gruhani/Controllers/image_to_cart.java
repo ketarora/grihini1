@@ -2,9 +2,11 @@ package com.example.Gruhani.Controllers;
 
 
 import com.example.Gruhani.Repositories.ProductRepo;
+import com.example.Gruhani.dtos.productdto;
 import com.example.Gruhani.models.product;
 import com.google.cloud.vision.v1.*;
 import com.google.protobuf.ByteString;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,13 +17,16 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static java.util.Arrays.stream;
 
 @RestController
 public class image_to_cart {
 @Autowired
     ProductRepo prepo;
     @PostMapping("/upload")
-    public ResponseEntity methew(@RequestParam("file") MultipartFile file) throws IOException {
+    public ResponseEntity<List<productdto>> methew(@RequestParam("file") MultipartFile file) throws IOException {
         ImageAnnotatorClient vision = ImageAnnotatorClient.create();
         // System.out.print("googlr"+);
         System.out.println("file"+file);
@@ -44,14 +49,33 @@ public class image_to_cart {
 
         String[] arr =extractedText.split("\\r?\\n");
         List<product>list=new ArrayList<>();
+
+        List<product>l=new ArrayList<>();
+
         for(int i=0;i<arr.length;i++)
         {
-            List<product>l=prepo.findAllByname(arr[i]);
-          list=  l.stream().filter(item->item.getRating()>4 && item.getBadge().equals("verified")).toList();
-        }
+            System.out.println("inside luupoooooo"+arr[i]);
+            if(prepo.existsByname(arr[i])) {
+                System.out.println("listooo"+prepo.findByname(arr[i]));
+                l.add(prepo.findByname(arr[i]));
+                System.out.println("listooo"+l.get(0));
 
-         return ResponseEntity.ok().body(list);
+            }
+        }
+        List<productdto>pdto=new ArrayList<>();
+        List<productdto> dtoList = l.stream()
+                .map(entity -> {
+                    productdto dto = new productdto();
+                    BeanUtils.copyProperties(entity, dto);
+                    return dto;
+                })
+                .toList();
+
+
+
+        return ResponseEntity.ok(dtoList);
 
 
     }
+
 }
