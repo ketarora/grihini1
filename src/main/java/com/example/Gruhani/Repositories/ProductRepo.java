@@ -12,4 +12,6 @@ public interface ProductRepo extends JpaRepository<product,String> {
     List<product> findAllBystatus(String approved);
 
     product findByid(String id);
+
+     List<product> findAllByname(String s);
 }
